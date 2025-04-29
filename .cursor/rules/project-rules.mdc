@@ -1,0 +1,112 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Project Overview
+
+*   **Type:** Native iOS application
+*   **Description:** Help users improve sleep and reduce stress by creating custom relaxing soundscapes.
+*   **Primary Goal:** Enable users to craft and play bespoke relaxing sound mixes to aid sleep and reduce stress.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+    *   SwiftUI 4 (iOS 17+): Use `Views/` with feature subfolders; each view file named `FeatureView.swift`.
+    *   Example 1: NavigationStack → `Views/Auth/LoginView.swift` & `Views/Auth/RegisterView.swift`.
+    *   Example 2: TabView routing → `Views/TabBar/MainTabView.swift` defines tabs and embeds `NavigationStack`.
+
+### Core Directories
+
+*   **Versioned Structure:**
+    *   RelaxingAppApp.swift → SwiftUI 4 `@main` entrypoint.
+    *   Resources/ → Asset catalogs, placeholder images, bundled metadata.
+    *   Models/ → Data types (User.swift, Sound.swift, Mix.swift).
+    *   ViewModels/ → Presentation logic (AuthViewModel.swift, MixerViewModel.swift, etc.).
+    *   Views/ → SwiftUI screens organized by feature.
+    *   Services/ → SupabaseService.swift, AudioManager.swift, DownloadManager.swift.
+    *   Extensions/ → SwiftUI and Foundation helpers.
+    *   Utils/ → FileManagerHelper.swift for local storage management.
+    *   Constants/ → URLs.swift for API endpoints and bucket names.
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+    *   RelaxingAppApp.swift → `@main` App struct with `ScenePhase` handling.
+    *   Services/SupabaseService.swift → Supabase Swift client using `async/await`.
+    *   Services/AudioManager.swift → `AVAudioEngine` multi-track playback and transitions.
+    *   Services/DownloadManager.swift → Asynchronous downloads & cache eviction.
+    *   Utils/FileManagerHelper.swift → Manage `ApplicationSupport` directory and LRU deletion.
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+    *   iOS@17 (SwiftUI 4): No storyboards; adopt `@main` App struct and `ScenePhase`.
+    *   Swift@5.9: Use Swift Concurrency (`async/await`) for all network and file I/O.
+    *   Supabase-Swift@1.x: Initialize `SupabaseClient` once; use typed RPC calls.
+    *   AVFoundation@1.x: Configure `AVAudioSession` for background playback and mixing.
+    *   SwiftLint@0.51: Enforce Swift style guidelines, no force-unwraps, max 500 lines/file.
+
+## PRD Compliance
+
+*   "Audio should continue playing when the device is locked or in the background.":
+    *   Enable `audio` in `UIBackgroundModes` of Info.plist.
+*   "Smooth audio transitions: Fade-in, fade-out, and crossfade between loops are essential.":
+    *   Implement `AVAudioMixing` ramp schedules on `AVAudioPlayerNode`.
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+    *   RelaxingAppApp.swift → MainTabView (TabView) with environment objects.
+    *   Auth Flow → `Views/Auth/LoginView.swift` & `RegisterView.swift` via `AuthViewModel`.
+    *   Mixer Flow → `Views/Mixer/MixerView.swift`, uses `AudioManager` for multi-track playback.
+    *   User Mixes → `Views/UserMixes/UserMixesView.swift` backed by `UserMixesViewModel`.
+    *   Downloaded Sounds → `Views/DownloadedSounds/DownloadedSoundsView.swift` via `DownloadedSoundsViewModel`.
+    *   Settings Flow → `Views/Settings/SettingsView.swift`, binds to `SettingsViewModel`.
+
+## Best Practices
+
+*   SwiftUI
+    *   Keep views declarative and stateless; push side effects into ViewModels.
+    *   Use `@StateObject` for root-level view models and `@ObservedObject` for children.
+    *   Employ `NavigationStack` for deep linking and clean navigation.
+*   MVVM
+    *   One ViewModel per screen; avoid global mutable state.
+    *   Expose only `@Published` properties for UI binding.
+*   Supabase
+    *   Centralize client setup in `SupabaseService`; use `try/await` with clear error handling.
+    *   Paginate large lists; fetch only required columns.
+*   AVAudioEngine
+    *   Preload audio buffers; schedule loops with sample-accurate timing.
+    *   Handle audio session interruptions and route changes gracefully.
+*   FileManager
+    *   Store downloads in `ApplicationSupport`; exclude from backups via resource key.
+    *   Monitor directory size and delete least-recently-used files when threshold exceeded.
+
+## Rules
+
+*   Derive folder and file patterns directly from this structure; do not deviate based on personal preference.
+*   Use SwiftUI routing exclusively; refrain from integrating UIKit or Storyboards.
+*   Enforce MVVM: no business logic in Views.
+*   Background audio mode and local notifications for timers are mandatory.
+*   All user-facing strings must be localized in French and English.
+*   Follow the color palette and typography guidelines: deep violet, pastel purples, bold headlines.
+
+## Rules Metrics
+
+Before starting the project development, create a metrics file in the root of the project called `cursor_metrics.md`.
+
+### Instructions:
+*   Each time a cursor rule is used as context, update `cursor_metrics.md`.
+*   Use the following format for `cursor_metrics.md`:
+
+# Rules Metrics
+
+## Usage
+The number of times rules is used as context
+
+*   routing-rule.mdc: 0
+*   mvvm-rule.mdc: 0
+*   audio-rule.mdc: 0
